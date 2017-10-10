@@ -6,6 +6,11 @@ Rails.application.routes.draw do
     collection do
       get 'search'
     end
+
+    member do
+      post :join
+      post :quit
+    end
     resources :reviews, except: [:show, :index]
   end
 

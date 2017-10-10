@@ -1,7 +1,7 @@
 class MoviesController < ApplicationController
-  before_action :set_movie, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate_user!,except: [:show,:index]
-  
+  before_action :set_movie, only: [:show, :edit, :update, :destroy, :join, :quit]
+  before_action :authenticate_user!,except: [:show,:index,:join, :quit]
+
   def search
       if params[:search].present?
         @movies = Movie.search(params[:search])
@@ -42,6 +42,7 @@ class MoviesController < ApplicationController
 
     respond_to do |format|
       if @movie.save
+        current_user.join!(@movie)
         format.html { redirect_to @movie, notice: 'Movie was successfully created.' }
         format.json { render :show, status: :created, location: @movie }
       else
@@ -74,6 +75,31 @@ class MoviesController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+
+  def join
+    if !current_user.is_member_of?(@movie)
+      current_user.join!(@movie)
+      flash[:notice] = "加入本讨论区成功！"
+    else
+      flash[:notice] = "您已经是本影片评论员了！"
+    end
+     redirect_to @movie
+  end
+
+  def quit
+    if current_user.is_member_of?(@movie)
+      current_user.quit!(@movie)
+      flash[:notice] = "您已经成功退出本讨论区！"
+    else
+      flash[:notice] = "您不是本影片评论员，不能退出！"
+    end
+     redirect_to @movie
+  end
+
+
+
+
 
   private
     # Use callbacks to share common setup or constraints between actions.

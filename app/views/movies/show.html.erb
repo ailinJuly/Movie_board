@@ -34,14 +34,27 @@
                </tr>
              </tbody>
           </table>
-          <%= link_to "Write a Review",new_movie_review_path(@movie) %>
+          <% if current_user && current_user.is_member_of?(@movie) %>
+            <%= link_to "Write a Review",new_movie_review_path(@movie) %>
+          <% end %>
         </div>
       </div>
       <div class="col-md-7 col-md-offset-1">
         <h1 class="review_title"><%= @movie.title %></h1>
-        <p><%= @movie.description %></p>
 
-        <% if @reviews.blank? %>
+        <span class="part">
+          <% if current_user && current_user.is_member_of?(@movie) %>
+            <label class="label label-success">本评论区会员</label>
+            <%= link_to("Quit Movie",quit_movie_path(@movie),method: :post, class: "btn btn-default")  %>
+          <% else %>
+            <label class="label label-warning">不是本影片评论员</label>
+            <%= link_to("Join Movie",join_movie_path(@movie),method: :post, class: "btn btn-default") %>
+          <% end %>
+        </span>
+
+          <p><%= @movie.description %></p>
+
+        <% if @reviews.blank? && current_user.is_member_of?(@movie) %>
          <h3>No reviews just yet, would you like to add the first!</h3>
          <%= link_to "Write a Review",new_movie_review_path(@movie),class:"btn btn-danger"%>
         <% else %>
